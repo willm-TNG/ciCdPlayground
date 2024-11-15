@@ -1,0 +1,37 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      {}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Unit tests
+        run: yarn test
+        continue-on-error: true
+
+      - name: Integration tests
+        run: yarn test:e2e
+        continue-on-error: true
+
+      - name: Report JUnit test results
+        uses: actions/junit-report@v2
+        with:
+          test_results: junit.xml
